@@ -27,7 +27,5 @@ jobs:
         with:
           push: true
           tags: mamercad:snakebot:latest
-        working-directory: app
-
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
