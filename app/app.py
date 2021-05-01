@@ -32,7 +32,7 @@ def help(user_id: str, channel: str):
 > *joke*: Tell a joke
 > *guid*: Random guid
 > *random* [low] [high]: Random number
-> *talons: In memoriam
+> *talons*: In memoriam
         '''
         message["text"] = help
     response = slack_web_client.chat_postMessage(**message)
