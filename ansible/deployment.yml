@@ -14,8 +14,8 @@
       vars:
         context: thinkpad
         image:
-          name: quay.io/mamercad/snakebot
-          tag: "{{ lookup('pipe', 'cat ../VERSION') }}"
+          name: mamercad/snakebot
+          tag: latest # "{{ lookup('pipe', 'cat ../VERSION') }}"
         service:
           port: 3000
         secret:
