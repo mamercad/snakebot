@@ -25,14 +25,13 @@ def help(user_id: str, channel: str):
     }
     with open("/VERSION") as f:
         version = f.readline().strip()
-        help = '''>
-*help*: This message
-*version*: The version
-*weather* [zip]: The weather
-*commit*: Commit message
-*joke*: Tell a joke
-*guid*: Random guid
-*random* [low] [high]: Random number
+        help = '''>*help*: This message
+> *version*: The version
+> *weather* [zip]: The weather
+> *commit*: Commit message
+> *joke*: Tell a joke
+> *guid*: Random guid
+> *random* [low] [high]: Random number
         '''
         message["text"] = help
     response = slack_web_client.chat_postMessage(**message)
@@ -191,13 +190,16 @@ def rand(user_id: str, channel: str, said: str):
     }
 
     try:
-        said = said.split(" ", 1)[1:].split()
+        said = said.split(" ")[1:]
+        # message["text"] = "```Debug: {0}```".format(str(said))
+        # response = slack_web_client.chat_postMessage(**message)
         if len(said) == 0:
             message["text"] = "```{0}```".format(str(random.randint(1, 100)))
         elif len(said) == 1:
             message["text"] = "```{0}```".format(str(random.randint(1, int(said[0]))))
         elif len(said) >= 2:
             message["text"] = "```{0}```".format(str(random.randint(int(said[0]), int(said[1]))))
+        response = slack_web_client.chat_postMessage(**message)
     except Exception as e:
         message["text"] = "```Exception: {0}```".format(str(e))
         response = slack_web_client.chat_postMessage(**message)
@@ -260,7 +262,7 @@ def message(payload):
     if text and text.startswith("parrot "):
         return parrot(user_id, channel_id, text)
 
-    if text and text.startswith("random "):
+    if text and text.startswith("random"):
         return rand(user_id, channel_id, text)
 
     if text and text.lower() == "commit":
