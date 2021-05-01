@@ -15,7 +15,7 @@
         context: thinkpad
         image:
           name: quay.io/mamercad/snakebot
-          tag: 0.0.2
+          tag: "{{ lookup('pipe', 'cat ../VERSION') }}"
         service:
           port: 3000
         secret:
