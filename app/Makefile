@@ -1,5 +1,6 @@
 LOCAL_TAG := "registry:5000/snakebot"
 QUAY_TAG := "quay.io/mamercad/snakebot"
+DOCKER_TAG := "mamercad/snakebot"
 VERSION := $(shell cat VERSION)
 
 .PHONY: all
@@ -13,10 +14,12 @@ help: ## Shows this help
 build: ## Build the Docker image
 	# @docker build --no-cache -t $(LOCAL_TAG):$(VERSION) .
 	@docker build --no-cache --tag $(QUAY_TAG):$(VERSION) .
+	@docker build --no-cache --tag $(DOCKER_TAG):$(VERSION) .
 
 push: ## Push the Docker image
 	# @docker push $(LOCAL_TAG):$(VERSION)
 	@docker push $(QUAY_TAG):$(VERSION)
+	@docker push $(DOCKER_TAG):$(VERSION)
 
 deploy: ## Deploy the app
 	cd ../ansible && ansible-playbook -i localhost, -c local deployment.yml -v
