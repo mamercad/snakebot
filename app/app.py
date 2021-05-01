@@ -32,6 +32,7 @@ def help(user_id: str, channel: str):
 > *joke*: Tell a joke
 > *guid*: Random guid
 > *random* [low] [high]: Random number
+> *talons: In memoriam
         '''
         message["text"] = help
     response = slack_web_client.chat_postMessage(**message)
@@ -52,6 +53,21 @@ def version(user_id: str, channel: str):
     with open("/VERSION") as f:
         version = f.readline().strip()
         message["text"] = f"```Version: {version}```"
+    response = slack_web_client.chat_postMessage(**message)
+    bot.timestamp = response["ts"]
+
+
+def talons(user_id: str, channel: str):
+    bot = SnakeBot(channel)
+    message = bot.get_message_payload()
+    message = {
+        "ts": bot.timestamp,
+        "channel": bot.channel,
+        "username": bot.username,
+        "icon_emoji": bot.icon_emoji,
+        "text": "Hello, World",
+    }
+    message["text"] = f"> Wings of the Raptor"
     response = slack_web_client.chat_postMessage(**message)
     bot.timestamp = response["ts"]
 
@@ -277,6 +293,8 @@ def message(payload):
     if text and text.lower() == "help":
         return help(user_id, channel_id)
 
+    if text and text.lower() == "talons":
+        return talons(user_id, channel_id)
 
 
 @app.route("/ping")
