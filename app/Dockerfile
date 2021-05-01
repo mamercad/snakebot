@@ -1,4 +1,8 @@
-FROM python:3
+# FROM python:3
+FROM alpine:latest
+
+RUN apk update
+RUN apk add --no-cache python3 python3-dev py3-pip bash curl
 
 COPY VERSION /
 COPY app.py /

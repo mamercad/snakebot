@@ -1,6 +1,8 @@
+import re
 import os
 import random
 import logging
+import subprocess
 from flask import Flask
 import requests
 from slack_sdk.web import WebClient
@@ -12,6 +14,7 @@ slack_events_adapter = SlackEventAdapter(
     os.environ.get("SLACK_SIGNING_SECRET"), "/slack/events", app
 )
 slack_web_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
+
 
 def help(user_id: str, channel: str):
     bot = SnakeBot(channel)
@@ -25,7 +28,7 @@ def help(user_id: str, channel: str):
     }
     with open("/VERSION") as f:
         version = f.readline().strip()
-        help = '''>*help*: This message
+        help = """>*help*: This message
 > *version*: The version
 > *weather* [zip]: The weather
 > *commit*: Commit message
@@ -33,11 +36,12 @@ def help(user_id: str, channel: str):
 > *guid*: Random guid
 > *random* [low] [high]: Random number
 > *talons*: In memoriam
-        '''
+> *shanti*: You know it
+> *shell* https://some.script: Run it
+        """
         message["text"] = help
     response = slack_web_client.chat_postMessage(**message)
     bot.timestamp = response["ts"]
-
 
 
 def version(user_id: str, channel: str):
@@ -68,6 +72,21 @@ def talons(user_id: str, channel: str):
         "text": "Hello, World",
     }
     message["text"] = f"> Wings of the Raptor"
+    response = slack_web_client.chat_postMessage(**message)
+    bot.timestamp = response["ts"]
+
+
+def shanti(user_id: str, channel: str):
+    bot = SnakeBot(channel)
+    message = bot.get_message_payload()
+    message = {
+        "ts": bot.timestamp,
+        "channel": bot.channel,
+        "username": bot.username,
+        "icon_emoji": bot.icon_emoji,
+        "text": "Hello, World",
+    }
+    message["text"] = f"> WB: Wrong Bread"
     response = slack_web_client.chat_postMessage(**message)
     bot.timestamp = response["ts"]
 
@@ -130,7 +149,7 @@ def commit(user_id: str, channel: str):
         r = requests.get("http://whatthecommit.com/index.txt")
         if r.status_code == requests.codes.ok:
             msg = r.text.strip()
-            message["text"] = f"```$ git commit -am \"{msg}\" && git push```"
+            message["text"] = f'```$ git commit -am "{msg}" && git push```'
             response = slack_web_client.chat_postMessage(**message)
         else:
             message["text"] = "```HTTP {0}```".format(r.status_code)
@@ -140,6 +159,57 @@ def commit(user_id: str, channel: str):
         response = slack_web_client.chat_postMessage(**message)
 
     bot.timestamp = response["ts"]
+
+
+def shell(user_id: str, channel: str, said: str):
+    bot = SnakeBot(channel)
+    message = bot.get_message_payload()
+    message = {
+        "ts": bot.timestamp,
+        "channel": bot.channel,
+        "username": bot.username,
+        "icon_emoji": bot.icon_emoji,
+        "text": "Yo!",
+    }
+
+    try:
+        said = " ".join(said.split(" ")[1:])
+        # message["text"] = f"Debug:\n```{said}```"
+        # response = slack_web_client.chat_postMessage(**message)
+        
+        parts = said.encode("ascii", "ignore").decode().strip()
+        parts = parts.replace("dot", ".")
+        parts = parts.replace("slash", "/")
+        parts = parts.replace("colon", ":")
+        parts = parts.replace(" ", "")
+
+        # message["text"] = f"Debug:\n```{parts}```"
+        # response = slack_web_client.chat_postMessage(**message)
+       
+        r = requests.get(parts)
+        if r.status_code == requests.codes.ok:
+            with open("/tmp/shell.sh", "w") as f:
+                f.write(r.text)
+            p = subprocess.run(
+                ["/bin/bash", "/tmp/shell.sh"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            if p.stdout:
+                print(p.stdout)
+                message["text"] = f"```{p.stdout}```"
+                response = slack_web_client.chat_postMessage(**message)
+            if p.stderr:
+                print(p.stderr)
+                message["text"] = f"```(stderr)\n{p.stderr}```"
+                response = slack_web_client.chat_postMessage(**message)
+    except Exception as e:
+        message["text"] = "```Exception: {0}```".format(str(e))
+        response = slack_web_client.chat_postMessage(**message)
+
+    bot.timestamp = response["ts"]
+
 
 def joke(user_id: str, channel: str):
     bot = SnakeBot(channel)
@@ -153,7 +223,9 @@ def joke(user_id: str, channel: str):
     }
 
     try:
-        r = requests.get("https://icanhazdadjoke.com", headers={'User-agent': 'curl/7.64.1'})
+        r = requests.get(
+            "https://icanhazdadjoke.com", headers={"User-agent": "curl/7.64.1"}
+        )
         if r.status_code == requests.codes.ok:
             msg = r.text.strip()
             message["text"] = f"> {msg}"
@@ -167,6 +239,7 @@ def joke(user_id: str, channel: str):
 
     bot.timestamp = response["ts"]
 
+
 def guid(user_id: str, channel: str):
     bot = SnakeBot(channel)
     message = bot.get_message_payload()
@@ -179,7 +252,7 @@ def guid(user_id: str, channel: str):
     }
 
     try:
-        r = requests.get("http://givemeguid.com", headers={'User-agent': 'curl/7.64.1'})
+        r = requests.get("http://givemeguid.com", headers={"User-agent": "curl/7.64.1"})
         if r.status_code == requests.codes.ok:
             msg = r.text.strip()
             message["text"] = f"```{msg}```"
@@ -214,7 +287,9 @@ def rand(user_id: str, channel: str, said: str):
         elif len(said) == 1:
             message["text"] = "```{0}```".format(str(random.randint(1, int(said[0]))))
         elif len(said) >= 2:
-            message["text"] = "```{0}```".format(str(random.randint(int(said[0]), int(said[1]))))
+            message["text"] = "```{0}```".format(
+                str(random.randint(int(said[0]), int(said[1])))
+            )
         response = slack_web_client.chat_postMessage(**message)
     except Exception as e:
         message["text"] = "```Exception: {0}```".format(str(e))
@@ -296,6 +371,11 @@ def message(payload):
     if text and text.lower() == "talons":
         return talons(user_id, channel_id)
 
+    if text and text.lower() == "shanti":
+        return shanti(user_id, channel_id)
+
+    if text and text.startswith("shell "):
+        return shell(user_id, channel_id, text)
 
 @app.route("/ping")
 def ping():
