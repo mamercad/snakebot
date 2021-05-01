@@ -1,5 +1,6 @@
 FROM python:3
 
+COPY VERSION /
 COPY app.py /
 COPY snakebot.py /
 
