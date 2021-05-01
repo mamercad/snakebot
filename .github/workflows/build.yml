@@ -42,7 +42,7 @@ jobs:
           context: app
           file: app/Dockerfile
           push: true
-          tags: mamercad/snakebot:${{ steps.version.outputs.content }}
+          tags: mamercad/snakebot:${{ steps.version.outputs.content }},mamercad/snakebot:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
