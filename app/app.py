@@ -44,6 +44,7 @@ def help(user_id: str, channel: str):
     bot.timestamp = response["ts"]
 
 
+@slack_events_adapter.on("hello")
 def version(user_id: str, channel: str):
     bot = SnakeBot(channel)
     message = bot.get_message_payload()
@@ -86,7 +87,14 @@ def shanti(user_id: str, channel: str):
         "icon_emoji": bot.icon_emoji,
         "text": "Hello, World",
     }
-    message["text"] = f"> WB: Wrong Bread"
+    sayings = [
+        "WB: Wrong Bread",
+        "The so-called `grep`",
+        "I brought all the books but not our textbook",
+        "Abe Lincoln",
+    ]
+    pick = sayings[random.randint(0, len(sayings) - 1)]
+    message["text"] = f"> {pick}"
     response = slack_web_client.chat_postMessage(**message)
     bot.timestamp = response["ts"]
 
@@ -176,7 +184,7 @@ def shell(user_id: str, channel: str, said: str):
         said = " ".join(said.split(" ")[1:])
         # message["text"] = f"Debug:\n```{said}```"
         # response = slack_web_client.chat_postMessage(**message)
-        
+
         parts = said.encode("ascii", "ignore").decode().strip()
         parts = parts.replace("dot", ".")
         parts = parts.replace("slash", "/")
@@ -185,7 +193,7 @@ def shell(user_id: str, channel: str, said: str):
 
         # message["text"] = f"Debug:\n```{parts}```"
         # response = slack_web_client.chat_postMessage(**message)
-       
+
         r = requests.get(parts)
         if r.status_code == requests.codes.ok:
             with open("/tmp/shell.sh", "w") as f:
@@ -376,6 +384,7 @@ def message(payload):
 
     if text and text.startswith("shell "):
         return shell(user_id, channel_id, text)
+
 
 @app.route("/ping")
 def ping():
