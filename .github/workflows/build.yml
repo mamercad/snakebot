@@ -10,12 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Checkout
+      - name: Check out code
         uses: actions/checkout@v2
 
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
+
+      - name: Get version
+        id: version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: VERSION
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -36,7 +42,7 @@ jobs:
           context: app
           file: app/Dockerfile
           push: true
-          tags: mamercad/snakebot:latest
+          tags: mamercad/snakebot:${{ steps.version.outputs.content }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
