@@ -1,0 +1,98 @@
+- name: Create Namespace
+  community.kubernetes.k8s:
+    state: present
+    context: "{{ context }}"
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: snakebot
+        labels:
+          name: snakebot
+
+- name: Create Deployment
+  community.kubernetes.k8s:
+    state: present
+    context: "{{ context }}"
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: snakebot
+        namespace: snakebot
+      spec: "{{ spec | from_yaml }}"
+  vars:
+    spec: |
+      selector:
+        matchLabels:
+          app: snakebot
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: snakebot
+        spec:
+          containers:
+            - name: snakebot
+              image: "{{ image.name }}:{{ image.tag }}"
+              imagePullPolicy: Always
+              env:
+                - name: SLACK_SIGNING_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: snakebot
+                      key: SLACK_SIGNING_SECRET
+                - name: SLACK_BOT_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: snakebot
+                      key: SLACK_BOT_TOKEN
+              ports:
+                - containerPort: {{ service.port }}
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "500m"
+          volumes:
+            - name: secret-volume
+              secret:
+                secretName: snakebot
+
+- name: Create Service
+  community.kubernetes.k8s:
+    state: present
+    context: "{{ context }}"
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: snakebot
+        namespace: snakebot
+      spec: "{{ spec | from_yaml }}"
+  vars:
+    spec: |
+      selector:
+        app: snakebot
+      ports:
+        - protocol: TCP
+          port: {{ service.port }}
+          targetPort: {{ service.port }}
+      type: LoadBalancer
+
+- name: Create Secret
+  community.kubernetes.k8s:
+    state: present
+    context: "{{ context }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: snakebot
+        namespace: snakebot
+      type: Opaque
+      data:
+        SLACK_SIGNING_SECRET: "{{ secret.SLACK_SIGNING_SECRET }}"
+        SLACK_BOT_TOKEN: "{{ secret.SLACK_BOT_TOKEN }}"
