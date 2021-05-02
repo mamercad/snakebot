@@ -2,7 +2,7 @@
 FROM alpine:latest
 
 RUN apk update
-RUN apk add --no-cache python3 python3-dev py3-pip bash curl
+RUN apk add --no-cache python3 python3-dev py3-pip bash curl gcc linux-headers musl-dev
 
 COPY VERSION /
 COPY app.py /
