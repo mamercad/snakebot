@@ -7,6 +7,7 @@ import requests
 from slack_sdk.web import WebClient
 from slackeventsapi import SlackEventAdapter
 from snakebot import SnakeBot
+import fx as fx
 
 app = Flask(__name__)
 slack_events_adapter = SlackEventAdapter(
@@ -27,7 +28,7 @@ def help(user_id: str, channel: str):
     }
     with open("/VERSION") as f:
         version = f.readline().strip()
-        help = f"""*SnakeBot* Version {version}
+        help = f"""<https://github.com/mamercad/snakebot|*SnakeBot* Version {version}>
 > *help*: This message
 > *version*: The version
 > *weather* [zip]: The weather
@@ -40,24 +41,6 @@ def help(user_id: str, channel: str):
 > *shell* https://some.script: Run it
         """
         message["text"] = help
-    response = slack_web_client.chat_postMessage(**message)
-    bot.timestamp = response["ts"]
-
-
-@slack_events_adapter.on("hello")
-def version(user_id: str, channel: str):
-    bot = SnakeBot(channel)
-    message = bot.get_message_payload()
-    message = {
-        "ts": bot.timestamp,
-        "channel": bot.channel,
-        "username": bot.username,
-        "icon_emoji": bot.icon_emoji,
-        "text": "Hello, World",
-    }
-    with open("/VERSION") as f:
-        version = f.readline().strip()
-        message["text"] = f"```Version: {version}```"
     response = slack_web_client.chat_postMessage(**message)
     bot.timestamp = response["ts"]
 
@@ -343,7 +326,6 @@ def weather(user_id: str, channel: str, said: str):
 
 
 @slack_events_adapter.on("message")
-# @slack_events_adapter.on("message.app_home")
 def message(payload):
     event = payload.get("event", {})
     channel_id = event.get("channel")
@@ -360,19 +342,7 @@ def message(payload):
         return weather(user_id, channel_id, text)
 
     if text and text.lower() == "version":
-        try:
-            with open("/VERSION") as f:
-                version = f.readline().strip()
-                text = f"```Version: {version}```"
-                slack_web_client.api_call(
-                    "chat.postMessage", channel=channel_id, text=text
-                )  # noqa E501
-        except Exception as e:
-            slack_web_client.api_call(
-                "chat.postMessage",
-                channel=channel_id,
-                text=f"```Exception {e}```",  # noqa E501
-            )  # noqa E501
+        return fx.version(user_id, channel_id)
 
     if text and text.startswith("parrot "):
         return parrot(user_id, channel_id, text)
