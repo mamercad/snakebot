@@ -24,7 +24,10 @@ push: ## Push the Docker image
 deploy: ## Deploy the app
 	cd ../ansible && ansible-playbook -i localhost, -c local deployment.yml -v
 
-shipit: build push deploy ## Ship it!
+shipit: ## build push deploy ## Ship it!
+	git tag $(shell cat VERSION)
+	git push
+	git push --tags
 
 run: ## Run the Docker image
 	@docker run --rm -it -p 3000:3000/tcp \
