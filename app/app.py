@@ -1,4 +1,3 @@
-import re
 import os
 import random
 import logging
@@ -28,7 +27,8 @@ def help(user_id: str, channel: str):
     }
     with open("/VERSION") as f:
         version = f.readline().strip()
-        help = """>*help*: This message
+        help = f"""*SnakeBot* Version {version}
+> *help*: This message
 > *version*: The version
 > *weather* [zip]: The weather
 > *commit*: Commit message
@@ -72,7 +72,7 @@ def talons(user_id: str, channel: str):
         "icon_emoji": bot.icon_emoji,
         "text": "Hello, World",
     }
-    message["text"] = f"> Wings of the Raptor"
+    message["text"] = "> Wings of the Raptor"
     response = slack_web_client.chat_postMessage(**message)
     bot.timestamp = response["ts"]
 
@@ -260,7 +260,9 @@ def guid(user_id: str, channel: str):
     }
 
     try:
-        r = requests.get("http://givemeguid.com", headers={"User-agent": "curl/7.64.1"})
+        r = requests.get(
+            "http://givemeguid.com", headers={"User-agent": "curl/7.64.1"}
+        )  # noqa E501
         if r.status_code == requests.codes.ok:
             msg = r.text.strip()
             message["text"] = f"```{msg}```"
@@ -293,7 +295,9 @@ def rand(user_id: str, channel: str, said: str):
         if len(said) == 0:
             message["text"] = "```{0}```".format(str(random.randint(1, 100)))
         elif len(said) == 1:
-            message["text"] = "```{0}```".format(str(random.randint(1, int(said[0]))))
+            message["text"] = "```{0}```".format(
+                str(random.randint(1, int(said[0])))
+            )  # noqa E501
         elif len(said) >= 2:
             message["text"] = "```{0}```".format(
                 str(random.randint(int(said[0]), int(said[1])))
@@ -356,7 +360,12 @@ def message(payload):
         return weather(user_id, channel_id, text)
 
     if text and text.lower() == "version":
-        return version(user_id, channel_id)
+        with open("/VERSION") as f:
+            version = f.readline().strip()
+            text = f"```Version: {version}```"
+            slack_web_client.api_call(
+                "chat.postMessage", channel=channel_id, text=text
+            )  # noqa E501
 
     if text and text.startswith("parrot "):
         return parrot(user_id, channel_id, text)
