@@ -1,7 +1,7 @@
 ---
 - name: deployment
-  hosts: localhost
-  connection: local
+  hosts: "{{ ansible_limit | default('localhost') }}"
+  connection: "{{ 'local' if ansible_limit == 'localhost' else 'ssh' }}"
   gather_facts: false
   become: false
   tasks:
