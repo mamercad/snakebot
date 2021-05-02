@@ -6,6 +6,7 @@ from flask import Flask
 import requests
 from slack_sdk.web import WebClient
 from slackeventsapi import SlackEventAdapter
+from slackclient import SlackClient
 from snakebot import SnakeBot
 
 app = Flask(__name__)
@@ -13,6 +14,7 @@ slack_events_adapter = SlackEventAdapter(
     os.environ.get("SLACK_SIGNING_SECRET"), "/slack/events", app
 )
 slack_web_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
+slack_client = SlackClient(token=os.environ.get("SLACK_BOT_TOKEN"))
 
 
 def help(user_id: str, channel: str):
@@ -360,11 +362,18 @@ def message(payload):
         return weather(user_id, channel_id, text)
 
     if text and text.lower() == "version":
-        with open("/VERSION") as f:
-            version = f.readline().strip()
-            text = f"```Version: {version}```"
-            slack_web_client.api_call(
-                "chat.postMessage", channel=channel_id, text=text
+        try:
+            with open("/VERSION") as f:
+                version = f.readline().strip()
+                text = f"```Version: {version}```"
+                slack_client.api_call(
+                    "chat.postMessage", channel=channel_id, text=text
+                )  # noqa E501
+        except Exception as e:
+            slack_client.api_call(
+                "chat.postMessage",
+                channel=channel_id,
+                text=f"```Exception {e}```",  # noqa E501
             )  # noqa E501
 
     if text and text.startswith("parrot "):
