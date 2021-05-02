@@ -31,6 +31,7 @@ shipit: ## build push deploy ## Ship it!
 
 run: ## Run the Docker image
 	@docker run --rm -it -p 3000:3000/tcp \
-		-e SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET} \
-		-e SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN} \
+		-e SLACK_SIGNING_SECRET \
+		-e SLACK_BOT_TOKEN \
+		-e DISCORD_WEBHOOK \
 		$(DOCKER_TAG):$(VERSION)
