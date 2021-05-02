@@ -4,8 +4,6 @@
   connection: local
   gather_facts: false
   become: false
-  vars:
-    ansible_python_interpreter: "{{ lookup('ansible.builtin.pipe', 'which python3') }}"
   tasks:
     - name: Include deployment role (deployment tasks)
       ansible.builtin.include_role:
