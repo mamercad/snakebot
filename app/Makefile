@@ -13,12 +13,12 @@ help: ## Shows this help
 
 build: ## Build the Docker image
 	# @docker build --no-cache -t $(LOCAL_TAG):$(VERSION) .
-	@docker build --no-cache --tag $(QUAY_TAG):$(VERSION) .
+	# @docker build --no-cache --tag $(QUAY_TAG):$(VERSION) .
 	@docker build --no-cache --tag $(DOCKER_TAG):$(VERSION) .
 
 push: ## Push the Docker image
 	# @docker push $(LOCAL_TAG):$(VERSION)
-	@docker push $(QUAY_TAG):$(VERSION)
+	# @docker push $(QUAY_TAG):$(VERSION)
 	@docker push $(DOCKER_TAG):$(VERSION)
 
 deploy: ## Deploy the app
@@ -30,4 +30,4 @@ run: ## Run the Docker image
 	@docker run --rm -it -p 3000:3000/tcp \
 		-e SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET} \
 		-e SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN} \
-		$(QUAY_TAG):$(VERSION)
+		$(DOCKER_TAG):$(VERSION)
