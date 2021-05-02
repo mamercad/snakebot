@@ -1,4 +1,5 @@
 requests==2.25.1
 slack_sdk>=3.0
 slackeventsapi>=2.1.0
+slackclient>=2.9.3
 Flask>=1.1.2
