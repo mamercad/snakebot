@@ -7,6 +7,9 @@
   vars:
     ansible_python_interpreter: /home/mark/.pyenv/shims/python3
   tasks:
+    - name: Wait 5 minutes for the image to build (hopefully)
+      ansible.builtin.pause:
+        minutes: 5
     - name: Include deployment role (deployment tasks)
       ansible.builtin.include_role:
         name: deployment
