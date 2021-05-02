@@ -16,6 +16,12 @@ jobs:
         run: |
           ls ${{ github.workspace }}
 
+      - name: Get version
+        id: version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: VERSION
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -35,7 +41,7 @@ jobs:
           context: app
           file: app/Dockerfile
           push: true
-          tags: mamercad/snakebot:${{ github.ref }},mamercad/snakebot:latest
+          tags: mamercad/snakebot:${{ steps.version.outputs.content }},mamercad/snakebot:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
