@@ -36,6 +36,8 @@
             - name: snakebot
               image: "{{ image.name }}:{{ image.tag }}"
               imagePullPolicy: Always
+              command: ["python3"]
+              args: ["app.py"]
               env:
                 - name: SLACK_SIGNING_SECRET
                   valueFrom:
@@ -47,6 +49,11 @@
                     secretKeyRef:
                       name: snakebot
                       key: SLACK_BOT_TOKEN
+                - name: DISCORD_WEBHOOK
+                  valueFrom:
+                    secretKeyRef:
+                      name: snakebot
+                      key: DISCORD_WEBHOOK
               ports:
                 - containerPort: {{ service.port }}
               resources:
@@ -96,3 +103,4 @@
       data:
         SLACK_SIGNING_SECRET: "{{ secret.SLACK_SIGNING_SECRET }}"
         SLACK_BOT_TOKEN: "{{ secret.SLACK_BOT_TOKEN }}"
+        DISCORD_WEBHOOK: "{{ secret.DISCORD_WEBHOOK }}"

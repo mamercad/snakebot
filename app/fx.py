@@ -3,6 +3,7 @@ import random
 import requests
 import subprocess
 from slack_sdk.web import WebClient
+import discord as discord
 
 slack_web_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
 
@@ -32,6 +33,17 @@ def commit(user_id: str, channel: str):
         slack_web_client.chat_postMessage(**msg)
 
 
+def disc(user_id: str, channel: str, said: str):
+    global msg
+    msg["channel"] = channel
+    try:
+        said = " ".join(said.split(" ", 1)[1:])
+        discord.post_message(said)
+    except Exception as e:
+        msg["text"] = "```Exception: {0}```".format(str(e))
+        slack_web_client.chat_postMessage(**msg)
+
+
 def help(user_id: str, channel: str):
     global msg
     msg["channel"] = channel
@@ -49,6 +61,7 @@ def help(user_id: str, channel: str):
 > *talons*: In memoriam
 > *shanti*: You know it
 > *shell* https://some.script: Run it
+> *discord* message: Send to Discord
         """
         msg["text"] = help
         slack_web_client.chat_postMessage(**msg)
@@ -80,8 +93,12 @@ def guid(user_id: str, channel: str):
 def hello(user_id: str, channel: str):
     global msg
     msg["channel"] = channel
-    msg["text"] = "Hello, World."
-    slack_web_client.chat_postMessage(**msg)
+    try:
+        msg["text"] = "Hello, World."
+        slack_web_client.chat_postMessage(**msg)
+    except Exception as e:
+        msg["text"] = "```Exception: {0}```".format(str(e))
+        slack_web_client.chat_postMessage(**msg)
 
 
 def joke(user_id: str, channel: str):

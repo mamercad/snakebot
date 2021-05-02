@@ -8,6 +8,7 @@ COPY VERSION /
 COPY app.py /
 COPY fx.py /
 COPY snakebot.py /
+COPY discord.py /
 
 COPY requirements.txt /
 RUN pip3 install -r requirements.txt

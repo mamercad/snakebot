@@ -60,10 +60,19 @@ def message(payload):
     if text and text.startswith("shell "):
         return fx.shell(user, channel, text)
 
+    if text and text.startswith("discord "):
+        return fx.disc(user, channel, text)
+
 
 @app.route("/ping")
 def ping():
     return "pong"
+
+
+@app.route("/discord")
+def discord():
+    fx.discord.post_message("Hello, World.")
+    return "boom"
 
 
 if __name__ == "__main__":
