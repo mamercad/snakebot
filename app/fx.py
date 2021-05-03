@@ -24,8 +24,8 @@ def commit(user_id: str, channel: str):
     try:
         r = requests.get("http://whatthecommit.com/index.txt")
         if r.status_code == requests.codes.ok:
-            msg = r.text.strip()
-            msg["text"] = f'```$ git commit -am "{msg}" && git push```'
+            m = r.text.strip()
+            msg["text"] = f'```$ git commit -am "{m}" && git push```'
             slack_web_client.chat_postMessage(**msg)
         else:
             msg["text"] = "```HTTP {0}```".format(r.status_code)
@@ -112,8 +112,8 @@ def joke(user_id: str, channel: str):
             headers={"User-agent": "curl/7.64.1"},
         )
         if r.status_code == requests.codes.ok:
-            msg = r.text.strip()
-            msg["text"] = f"> {msg}"
+            m = r.text.strip()
+            msg["text"] = f"> {m}"
             slack_web_client.chat_postMessage(**msg)
         else:
             msg["text"] = "```HTTP {0}```".format(r.status_code)
