@@ -160,6 +160,7 @@ def shanti(user_id: str, channel: str):
             "The so-called `grep`",
             "I brought all the books but not our textbook",
             "Abe Lincoln",
+            "some kind of a magic here (courtesy of @josh)",
         ]
         pick = sayings[random.randint(0, len(sayings) - 1)]
         msg["text"] = f"> {pick}"
@@ -219,7 +220,9 @@ def version(user_id: str, channel: str):
     msg["channel"] = channel
     with open("/VERSION") as f:
         version = f.readline().strip()
-    msg["text"] = f"```Version: {version}```"
+    with open("/SUMMARY") as f:
+        summary = f.readline().strip()
+    msg["text"] = f"```Version: {version} ({summary})```"
     slack_web_client.chat_postMessage(**msg)
 
 
